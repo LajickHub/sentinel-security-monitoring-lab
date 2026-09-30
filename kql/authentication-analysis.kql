@@ -1,0 +1,12 @@
+SecurityEvent
+| where Computer startswith "vm-sentinel-win"
+| where EventID in (4624, 4625)
+| where Account contains "labadmin"
+| project
+    TimeGenerated,
+    Result = iff(EventID == 4625, "FAILED", "SUCCESS"),
+    EventID,
+    Account,
+    LogonType,
+    IpAddress
+| order by TimeGenerated asc
