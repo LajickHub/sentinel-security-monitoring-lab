@@ -1,0 +1,12 @@
+SecurityEvent
+| where TimeGenerated >= ago(10m)
+| where Computer startswith "vm-sentinel-win"
+| where EventID == 4625
+| extend AccountDomain = tostring(split(Account, "\\")[0]),
+         AccountName = tostring(split(Account, "\\")[1])
+| summarize
+    FailedAttempts = count(),
+    FirstAttempt = min(TimeGenerated),
+    LastAttempt = max(TimeGenerated)
+    by Computer, Account, AccountDomain, AccountName, IpAddress
+| where FailedAttempts >= 3
