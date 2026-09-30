@@ -1,0 +1,12 @@
+SecurityEvent
+| where Computer startswith "vm-sentinel-win"
+| where EventID == 4688
+| where Account contains "labadmin"
+| extend ProcessName = tostring(split(NewProcessName, "\\")[-1]),
+         ParentName = tostring(split(ParentProcessName, "\\")[-1])
+| summarize
+    ExecutionCount = count(),
+    FirstSeen = min(TimeGenerated),
+    LastSeen = max(TimeGenerated)
+    by ProcessName, ParentName
+| order by ExecutionCount desc
